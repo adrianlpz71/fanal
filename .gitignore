@@ -1,0 +1,38 @@
+# Datos reales: NUNCA al repo
+data/
+*.xlsx
+*.xls
+*.csv
+!backend/tests/fixtures/**/*.csv
+!backend/tests/fixtures/**/*.xlsx
+*.dump
+*.sql.gz
+*.age
+
+# Secretos
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+key.properties
+
+# Python
+__pycache__/
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Flutter / Dart
+app/.dart_tool/
+app/build/
+app/.flutter-plugins*
+app/android/.gradle/
+app/android/local.properties
+
+# Editor / SO
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

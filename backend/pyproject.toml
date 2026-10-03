@@ -1,0 +1,61 @@
+[project]
+name = "faro-backend"
+version = "0.1.0"
+description = "Faro — API de finanzas personales"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "sqlalchemy>=2.0.36",
+    "psycopg[binary]>=3.2",
+    "alembic>=1.14",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    "email-validator>=2.2",
+    "argon2-cffi>=23.1",
+    "pyotp>=2.9",
+    "pyjwt>=2.10",
+    "cryptography>=43",
+    "apscheduler>=3.10,<4",
+    "httpx>=0.27",
+    "openpyxl>=3.1",
+    "python-multipart>=0.0.12",
+    "pypdf>=5",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "hypothesis>=6.115",
+    "ruff>=0.8",
+    "mypy>=1.13",
+]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "S", "SIM", "RUF"]
+ignore = ["S101", "B008", "RUF001", "RUF002", "RUF003"]
+
+[tool.ruff.lint.isort]
+known-third-party = ["alembic"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S105", "S106"]
+"tests/conftest.py" = ["E402", "S105", "S106"]
+"alembic/**" = ["E501"]
+"app/importers/**" = ["E501"]  # cadenas largas del informe de importación
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q -p no:cacheprovider"
+
+[tool.mypy]
+python_version = "3.13"
+files = ["app/domain"]
+strict = true

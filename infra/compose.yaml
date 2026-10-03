@@ -1,0 +1,61 @@
+# Entorno de DESARROLLO. Ejecutar desde WSL:
+#   docker compose -f infra/compose.yaml up -d   (desde la raíz del repo; en Windows, desde WSL)
+# API en http://localhost:8100/api (docs en /api/docs). Postgres en 127.0.0.1:55432 (solo local).
+name: faro-dev
+
+x-backend: &backend
+  build:
+    context: ../backend
+    args:
+      DEV: "1"
+  image: faro-backend:dev
+  environment:
+    FARO_ENV: dev
+    FARO_DATABASE_URL: postgresql+psycopg://faro:faro@db:5432/faro
+    FARO_COOKIE_SECURE: "false"
+    FARO_MFA_DISABLED: "true"   # dev: login sin 2FA (prohibido en prod)
+    FARO_CORS_ORIGINS: '["http://localhost:5050","http://127.0.0.1:5050"]'
+    FARO_RELEASE_INFO_PATH: /release/latest.json
+    WATCHFILES_FORCE_POLLING: "true"
+  volumes:
+    - ../backend:/app
+  depends_on:
+    db:
+      condition: service_healthy
+
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: faro
+      POSTGRES_PASSWORD: faro
+      POSTGRES_DB: faro
+      TZ: Atlantic/Canary
+    volumes:
+      - pgdata:/var/lib/postgresql
+      - ./dev/initdb:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "127.0.0.1:55432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U faro -d faro"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  api:
+    <<: *backend
+    command: >
+      sh -c "alembic upgrade head &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8100 --reload --reload-dir app"
+    ports:
+      - "127.0.0.1:8100:8100"
+
+  worker:
+    <<: *backend
+    command: python -m app.worker
+    depends_on:
+      api:
+        condition: service_started
+
+volumes:
+  pgdata:

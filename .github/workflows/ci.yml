@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+  workflow_call:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: "3.44.8"
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: faro
+          POSTGRES_PASSWORD: faro
+          POSTGRES_DB: faro_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U faro -d faro_test" --health-interval 3s --health-retries 20
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      FARO_TEST_DATABASE_URL: postgresql+psycopg://faro:faro@localhost:5432/faro_test
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+      - run: uv sync --frozen
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run pytest
+
+  app:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - name: Cliente API generado al día
+        run: |
+          bash scripts/gen-api.sh
+          bash scripts/gen-api-build.sh
+          head -c 200 backend/openapi.json  # debe empezar por "{" (si no, se coló otra salida)
+          git status --porcelain -- backend/openapi.json app/packages/faro_api
+          git diff --exit-code -- backend/openapi.json app/packages/faro_api
+          # Dinero nunca como double en el cliente generado
+          if grep -rn "double" app/packages/faro_api/lib/src/model/; then echo "::error::double en modelos generados"; exit 1; fi
+      - working-directory: app
+        run: |
+          flutter pub get
+          flutter analyze --no-fatal-infos lib test
+          flutter test
+          # Accesibilidad: las mismas pruebas con el texto del sistema al 130 % (nada se desborda)
+          flutter test --dart-define=FARO_TEXT_SCALE=1.3

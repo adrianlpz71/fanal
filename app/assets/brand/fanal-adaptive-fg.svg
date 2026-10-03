@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108"><g transform="translate(18 18) scale(0.6923)">
+<polygon points="37,42 6,31 6,59 37,52" fill="#FFD36E" opacity="0.35"/>
+<polygon points="67,42 98,31 98,59 67,52" fill="#FFD36E" opacity="0.35"/>
+<rect x="42" y="82" width="20" height="3.5" rx="1.5" fill="#FFD36E" opacity="0.75"/>
+<rect x="45" y="89" width="14" height="3.5" rx="1.5" fill="#FFD36E" opacity="0.55"/>
+<rect x="48" y="96" width="8" height="3.5" rx="1.5" fill="#FFD36E" opacity="0.35"/>
+<path d="M36 34 Q52 16 68 34 Z" fill="#F4F1E8"/>
+<circle cx="52" cy="19" r="2.5" fill="#F4F1E8"/>
+<rect x="33" y="34" width="38" height="4" rx="1" fill="#F4F1E8"/>
+<rect x="37" y="38" width="30" height="22" fill="#FFD36E"/>
+<line x1="47" y1="38" x2="47" y2="60" stroke="#0E5E6F" stroke-width="2.2"/>
+<line x1="57" y1="38" x2="57" y2="60" stroke="#0E5E6F" stroke-width="2.2"/>
+<rect x="31" y="60" width="42" height="5" rx="1" fill="#F4F1E8"/>
+<rect x="39" y="65" width="26" height="13" fill="#F4F1E8"/>
+</g></svg>
